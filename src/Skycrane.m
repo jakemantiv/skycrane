@@ -166,6 +166,13 @@ H = C;
 M = D;
 
 
+% Determine DT system observability
+Obsv = [H; H*F];
+is_obsv = rank(Obsv) == 6; 
+
+% Determine DT system stability
+evals = eig(F)
+
 % Simulate linearized system about nominal point, with small perturbation
 N = 500;
 time = (0:N)*dt;
