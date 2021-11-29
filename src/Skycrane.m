@@ -54,7 +54,7 @@ dz2 = @(X,U) (U(1)*(cos(B)*cos(X(5)) - sin(B)*sin(X(5))) + U(2)*(cos(B)*cos(X(5)
 da =  @(X,U) X(6);
 da2 = @(X,U) (1/In)*((U(1) - U(2))*cos(B)*wc + (U(2) - U(1))*sin(B)*hc);
 dX =  @(X,U) [dx(X,U), dx2(X,U), dz(X,U), dz2(X,U), da(X,U), da2(X,U)]';
-Yf =  @(X,U) [X(1); X(3); X(6); dz2(X,U)];
+Yf =  @(X,U) [X(1); X(3); X(6); dx2(X,U)];
 
 
 % Jacobians
@@ -167,9 +167,10 @@ M = D;
 
 
 % Simulate linearized system about nominal point, with small perturbation
-N = 1000;
+N = 500;
 time = (0:N)*dt;
 delX0 = [5, -.01, 10, -0.15, deg2rad(.02), -deg2rad(.005)]';
+delX0 = [0; 0.2; 0; 0; 0; 0.001]
 delX = delX0.*ones(n,N);
 U0 = [0,0]';
 for k = 1:N
@@ -205,7 +206,7 @@ symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 figure
 for i = 1:p
     ax(i) = subplot(p,1,i);
-    plot(ax(i),time,X(i,:),'-',time,X_nl(i,:),'--');
+    plot(ax(i),time,Y(i,:),'-',time,Y_nl(i,:),'--');
     grid(ax(i),'on');grid(ax(i),'minor')
     ylabel(ax(i),symbols{i},'Interpreter','latex')
 end
