@@ -73,6 +73,7 @@ J = subs(J,a1,0);
 J = subs(J,a2,0);
 J = limit(J,x2,0);
 
+R_sym = R 
 R = subs(R,u1,0.5*g*(mb + mf)/cos(B));
 R = subs(R,u2,0.5*g*(mb + mf)/cos(B));
 R = subs(R,x1,0);
