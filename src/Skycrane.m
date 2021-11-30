@@ -213,7 +213,7 @@ xlabel('Time (s)');
 linkaxes(ax,'x')
 sgtitle('Simulated System States');
 if saveFigs
-    saveas(gcf,'simulated_states.png');
+    saveas(gcf,'../figs/simulated_states.png');
 end
 
 % Plot measurements
@@ -232,14 +232,14 @@ xlabel('Time (s)');
 linkaxes(ax,'x')
 sgtitle('Simulated System Measurements');
 if saveFigs
-    saveas(gcf,'simulated_measurements.png');
+    saveas(gcf,'../figs/simulated_measurements.png');
 end
 % Plot x/z trajectories
 figure
 plot(X(1,:),X(3,:),'-',X_nl(1,:),X_nl(3,:),'--', 'LineWidth', 1.5)
 grid on; grid minor
 if saveFigs
-    saveas(gcf,'xz_traj.png');
+    saveas(gcf,'../figs/xz_traj.png');
 end
 
 % 
