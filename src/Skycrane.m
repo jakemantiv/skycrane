@@ -3,7 +3,7 @@ clearvars
 clc; close all
 
 % save plots? 
-saveFigs = true;
+saveFigs = false;
 
 % System Parameters
 rho = 0.020;            % Mars surface atmosphere density           [kg/m3]
@@ -170,11 +170,15 @@ M = D;
 
 
 % Determine DT system observability
-Obsv = [H; H*F];
-is_obsv = rank(Obsv) == 6; 
+Obsv = [H; H*F; H*F^2; H*F^3; H*F^4; H*F^5];
+is_obsv = rank(Obsv) == 6 
 
 % Determine DT system stability
 evals = eig(F)
+
+% Determine DT system controllability
+Co = [B, A*B, A^2*B, A^3*B, A^4*B, A^5*B];
+is_ctrb = rank(Co) == 6
 
 % Simulate linearized system about nominal point, with small perturbation
 N = 500;
