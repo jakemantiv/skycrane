@@ -1,6 +1,9 @@
 % Skycrane
 clearvars
-clc
+clc; close all
+
+% save plots? 
+saveFigs = true;
 
 % System Parameters
 rho = 0.020;            % Mars surface atmosphere density           [kg/m3]
@@ -201,11 +204,17 @@ symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
 figure
 for i = 1:n
     ax(i) = subplot(n,1,i);
-    plot(ax(i),time,X(i,:),'-',time,X_nl(i,:),'--');
+    plot(ax(i),time,X(i,:),'-',time,X_nl(i,:),'--', 'LineWidth', 1.5);
     grid(ax(i),'on');grid(ax(i),'minor')
-    ylabel(ax(i),symbols{i},'Interpreter','latex')
+    ylabel(ax(i),symbols{i},'Interpreter','latex', 'FontSize', 20)
+    legend('Nonlinear', 'Linearized', 'location', 'best');
 end
+xlabel('Time (s)');
 linkaxes(ax,'x')
+sgtitle('Simulated System States');
+if saveFigs
+    saveas(gcf,'simulated_states.png');
+end
 
 % Plot measurements
 p = 4;
@@ -213,16 +222,24 @@ symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 figure
 for i = 1:p
     ax(i) = subplot(p,1,i);
-    plot(ax(i),time,Y(i,:),'-',time,Y_nl(i,:),'--');
+    plot(ax(i),time,Y(i,:),'-',time,Y_nl(i,:),'--', 'LineWidth', 1.5);
     grid(ax(i),'on');grid(ax(i),'minor')
-    ylabel(ax(i),symbols{i},'Interpreter','latex')
-end
-linkaxes(ax,'x')
+    ylabel(ax(i),symbols{i},'Interpreter','latex', 'FontSize', 20)
 
+end
+
+xlabel('Time (s)');
+linkaxes(ax,'x')
+sgtitle('Simulated System Measurements');
+if saveFigs
+    saveas(gcf,'simulated_measurements.png');
+end
 % Plot x/z trajectories
 figure
-plot(X(1,:),X(3,:),'-',X_nl(1,:),X_nl(3,:),'--')
+plot(X(1,:),X(3,:),'-',X_nl(1,:),X_nl(3,:),'--', 'LineWidth', 1.5)
 grid on; grid minor
-
+if saveFigs
+    saveas(gcf,'xz_traj.png');
+end
 
 % 
