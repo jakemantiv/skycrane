@@ -3,7 +3,7 @@
 function [X,Y,U] = truthModel(t,F,H,X0,Xnom,Unom,control)
 
 % Load data matrix
-data = load("..\lib\skycrane_finalproj_KFdata.mat");
+data = load(['..',filesep,'lib', filesep, 'skycrane_finalproj_KFdata.mat']);
 
 % Feedback control gain matrix
 Klin = data.Klin;

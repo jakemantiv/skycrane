@@ -5,7 +5,10 @@ n = numel(symbols);
 figure
 for i = 1:n
     ax(i) = subplot(n,1,i); %#ok<AGROW>
-    plot(ax(i),time,X(i,:),'-', 'LineWidth', 1.5);
+    hold on;
+    for j = 1:size(X,3)
+        plot(ax(i),time,X(i,:,j),'-', 'LineWidth', 1.5);
+    end
     grid(ax(i),'on');grid(ax(i),'minor')
     ylabel(ax(i),symbols{i},'Interpreter','latex', 'FontSize', 20)
 end
