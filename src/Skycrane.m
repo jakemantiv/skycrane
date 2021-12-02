@@ -49,7 +49,7 @@ al = @(X) atan2(X(4),X(2));
 Fdx = @(X) (1/2)*Cd*rho*(As*cos(X(5) - al(X)) + Ab*sin(X(5) - al(X)))*X(2)*sqrt(X(2)^2 + X(4)^2);
 Fdz = @(X) (1/2)*Cd*rho*(As*cos(X(5) - al(X)) + Ab*sin(X(5) - al(X)))*X(4)*sqrt(X(2)^2 + X(4)^2);
 
-% Non-Linear functions
+% Non-Linear functions 
 dx =  @(X,U) X(2);
 dx2 = @(X,U) (U(1)*(cos(B)*sin(X(5)) + sin(B)*cos(X(5))) + U(2)*(cos(B)*sin(X(5)) - sin(B)*cos(X(5))) - Fdx(X))/(mb + mf);
 dz =  @(X,U) X(4);
