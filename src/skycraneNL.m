@@ -3,6 +3,9 @@ function [F,H] = skycraneNL
 % Get System Parameters
 skycrane_params
 
+% TODO These anonymous functions are making MC runs very slow
+% may speed things up if we un-anonymous these guys 
+
 % Moment of Inertia
 In = (1/12)*(mb*(wb^2 + hb^2) + mf*(wf^2 + hf^2));
 
