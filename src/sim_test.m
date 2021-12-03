@@ -59,7 +59,7 @@ for i = 1:Nsim
     X0 = delX0 + X_nom;
     
     % Truth model Simulation
-    [X,Y,U] = truthModel(time,U_nom,Fnl,Hnl,Qt,Rt,X0,X_nom,control);
+    [X,Y,U] = truthModel(time,Fnl,Hnl,X0,X_nom,U_nom,control);
     
     % Linearized Kalman Filter Estimate
     dY = Y - Y_nom;
@@ -118,4 +118,4 @@ meas_opts.filename = '';
 meas_opts.legends = {'Truth Sim','Kalman Filter'};
 
 % Plot Measurements
-make_plots(meas_opts,time(2:end),Y,Yh)
+make_plots(meas_opts,time,Y,Yh)
