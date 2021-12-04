@@ -1,13 +1,11 @@
 clearvars; clc
 
-% where to save the data? 
-dataFileName = 'mcTestData';
+c
 
 % How many Monte Carlo Runs?
 numMC = 10;
 
-% fix random seed
-rng(0)
+
 
 % Simulation Testing
 control = true;
