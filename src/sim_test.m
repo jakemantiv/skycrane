@@ -76,7 +76,7 @@ for i = 1:Nsim
     Yh_lkf = dYh + Y_nom;
     
     % Extended Kalman Filter
-    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,dX0,P0,Fnl,F,G,Hnl,H,M,Q,R);
+    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X_nom,P0,Fnl,F,G,Hnl,H,M,Q,R);
 
     % Calculate NEES and NIS at each time step
     ex_lkf(i,:) = NEES(X,Xh_lkf,P_lkf);
