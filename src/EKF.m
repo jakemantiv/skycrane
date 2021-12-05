@@ -4,7 +4,7 @@ function [Xh,Yh,P,S,Sx] = EKF(t,Y,U,X0,P0,Fnl,Flin,G,Hnl,Hlin,M,Q,R)
 [p,n] = size(Hlin);
 
 % Remove control feedthrough inputs from measurements
-Y = Y - M*U;
+% Y = Y - M*U;
 
 % Initialize Filter
 Xp = X0;
@@ -20,11 +20,11 @@ Omega = eye(size(Q,1)); % what is omega?
 % Loop through time input 
 for k = 1:numel(t)-1
     % Perform Time Update
-    Xm = Fnl(Xp,U,[0;0;0])
+    Xm = Fnl(Xp,U(:,k),[0;0;0]);
     Pm = Flin*Pp*Flin' + Omega*Q*Omega;
     
     % Perform Measurement Update
-    Ym = Hnl(Xm, U , [0; 0; 0; 0]);
+    Ym = Hnl(Xm, U(:,k) , [0; 0; 0; 0]);
     K = Pm*Hlin'/(Hlin*Pm*Hlin' + R);
     Xp = Xm + K*(Y(:,k+1) - Ym);
     Pp = (eye(n) - K*Hlin)*Pm;
