@@ -92,9 +92,12 @@ end
 alpha = 0.05;
 exb_lkf = mean(ex_lkf,1);
 eyb_lkf = mean(ey_lkf,1);
+exb_ekf = mean(ex_ekf,1);
+eyb_ekf = mean(ey_ekf,1);
 rx = [chi2inv(alpha/2,Nsim*n), chi2inv(1 - alpha/2,Nsim*n)]'/Nsim;
 ry = [chi2inv(alpha/2,Nsim*p), chi2inv(1 - alpha/2,Nsim*p)]'/Nsim;
 
+%% LKF plots
 % Plot NIS and NEES Statistics
 figure
 subplot(2,1,1);
@@ -110,7 +113,7 @@ state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{
 state_opts.title = 'Simulated System States';
 state_opts.saveFigs = false;
 state_opts.filename = '';
-state_opts.legends = {'Truth Sim','Kalman Filter'};
+state_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
 
 % Plot states
 make_plots(state_opts,time,X,Xh_lkf)
@@ -127,7 +130,44 @@ meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 meas_opts.title = 'Simulated System Measurements';
 meas_opts.saveFigs = false;
 meas_opts.filename = '';
-meas_opts.legends = {'Truth Sim','Kalman Filter'};
+meas_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
 
 % Plot Measurements
 make_plots(meas_opts,time,Y,Yh_lkf)
+%% EKF plots
+% Plot NIS and NEES Statistics
+figure
+subplot(2,1,1);
+plot(time(2:end),exb_ekf,'or',time,ones(2,numel(time)).*rx,'--r')
+ylabel('NEES')
+subplot(2,1,2);
+plot(time(2:end),eyb_ekf,'or',time,ones(2,numel(time)).*ry,'--r')
+ylabel('NIS')
+
+% Plot options for states
+state_opts = struct;
+state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
+state_opts.title = 'Simulated System States';
+state_opts.saveFigs = false;
+state_opts.filename = '';
+state_opts.legends = {'Truth Sim','Extended Kalman Filter'};
+
+% Plot states
+make_plots(state_opts,time,X,Xh_ekf)
+
+% Plot states and error covariance
+state_opts.title = 'Simulated System State Errors and 2-Sigma Bounds';
+state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
+make_plots(state_opts,time,X-Xh_ekf,2*Sx_ekf,-2*Sx_ekf)
+
+
+% Plot options for states
+meas_opts = struct;
+meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
+meas_opts.title = 'Simulated System Measurements';
+meas_opts.saveFigs = false;
+meas_opts.filename = '';
+meas_opts.legends = {'Truth Sim','Extended Kalman Filter'};
+
+% Plot Measurements
+make_plots(meas_opts,time,Y,Yh_ekf)
