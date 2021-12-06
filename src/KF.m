@@ -56,14 +56,17 @@ for k = 1:N-1
     % Measurement perturbation at time = tk+1
     dYk = dY(:,k+1);
     
+    % Control perturbation at time = tk+1
+    dUp = dU(:,k+1);
+    
     % Perform Measurement Update
     Kk = Pm*Hk'*inv(Hk*Pm*Hk' + Rk);
-    dXp = dXm + Kk*(dYk - Hk*dXm - Mk*dUk);
+    dXp = dXm + Kk*(dYk - Hk*dXm - Mk*dUp);
     Pp = (I - Kk*Hk)*Pm;
     
     % Update output Vectors
     dXh(:,k+1) = dXp;
-    dYh(:,k+1) = Hk*dXm + Mk*dUk;
+    dYh(:,k+1) = Hk*dXm + Mk*dUp;
     P(:,:,k+1) = Pp;
     S(:,:,k+1) = Hk*Pm*Hk' + Rk;
     Sx(:,k+1) = sqrt(diag(Pp));

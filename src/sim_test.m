@@ -11,7 +11,7 @@ control = true;
 Tsim = 120;
 dT = 0.1;
 Nsim = 50;
-qW = .01;
+qW = .011;
 
 % Simulation time
 time = 0:dT:Tsim;
@@ -53,7 +53,7 @@ Unom = @(t) Unom;
 Ynom = @(t) Ynom;
 
 % Initial Condition Variance
-X_var = .01*[2,.5,2,.5,deg2rad(1),deg2rad(.05)]';
+X_var = [2,.5,2,.5,deg2rad(1),deg2rad(.2)]';
 
 % Initialize Filter
 P0 = 1E4*eye(n);
