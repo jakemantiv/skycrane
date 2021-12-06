@@ -10,7 +10,7 @@ dataFileName = 'mcTestData';
 control = true;
 Tsim = 120;
 dT = 0.1;
-Nsim = 50;
+Nsim = 1;
 qW = .011;
 
 % Simulation time
@@ -53,7 +53,7 @@ Unom = @(t) Unom;
 Ynom = @(t) Ynom;
 
 % Initial Condition Variance
-X_var = [2,.5,2,.5,deg2rad(1),deg2rad(.2)]';
+X_var = 5*[2,.5,2,.5,deg2rad(1),deg2rad(.2)]';
 
 % Initialize Filter
 P0 = 1E4*eye(n);
@@ -98,6 +98,7 @@ eyb_ekf = mean(ey_ekf,1);
 rx = [chi2inv(alpha/2,Nsim*n), chi2inv(1 - alpha/2,Nsim*n)]'/Nsim;
 ry = [chi2inv(alpha/2,Nsim*p), chi2inv(1 - alpha/2,Nsim*p)]'/Nsim;
 
+
 %% LKF plots
 % Plot NIS and NEES Statistics
 figure
@@ -125,7 +126,7 @@ state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
 make_plots(state_opts,time,X-Xh_lkf,2*Sx_lkf,-2*Sx_lkf)
 
 
-% Plot options for states
+% Plot options for measurements
 meas_opts = struct;
 meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 meas_opts.title = 'Simulated System Measurements';
@@ -172,3 +173,62 @@ meas_opts.legends = {'Truth Sim','Extended Kalman Filter'};
 
 % Plot Measurements
 make_plots(meas_opts,time,Y,Yh_ekf)
+
+
+
+
+%% Provided Data Analysis
+
+% Use tuned filters to estimate states from provided observation and
+% control data.
+
+% Provided data
+time = data.tvec;
+Y = data.ydata;
+U = data.uhist;
+
+% Initial Conditions
+X0 = Xnom(0);
+P0 = 1E4*eye(n);
+
+% Linearized Kalman Filter Estimate
+[Xh_lkf,Yh_lkf,P_lkf,S_lkf,Sx_lkf] = KF(time,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R);
+
+% Extended Kalman Filter
+[Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,Hnl,H,Om,Q,R);
+
+%% LKF Plots
+% Plot options for states
+state_opts = struct;
+state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
+state_opts.title = 'Simulated System States';
+state_opts.saveFigs = false;
+state_opts.filename = '';
+state_opts.legends = {'Estimate'};
+
+% Plot states
+make_plots(state_opts,time,Xh_lkf)
+
+% Plot options for 2-sigma
+state_opts.legends = {'2-Sigma'};
+
+% Plot 2-sigma
+make_plots(state_opts,time,2*Sx_lkf)
+
+%% EKF Plots
+% Plot options for states
+state_opts = struct;
+state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
+state_opts.title = 'Simulated System States';
+state_opts.saveFigs = false;
+state_opts.filename = '';
+state_opts.legends = {'Estimate'};
+
+% Plot states
+make_plots(state_opts,time,Xh_ekf)
+
+% Plot options for 2-sigma
+state_opts.legends = {'2-Sigma'};
+
+% Plot 2-sigma
+make_plots(state_opts,time,2*Sx_ekf)
