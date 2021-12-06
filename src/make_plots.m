@@ -12,7 +12,7 @@ n = numel(symbols);
 m = numel(varargin);
 
 % Create subplots
-figure
+f = figure();
 for i = 1:n
     ax(i) = subplot(n,1,i); %#ok<AGROW>
     for j = 1:m
@@ -30,5 +30,6 @@ linkaxes(ax,'x')
 sgtitle(title);
 
 if saveFigs
-    saveas(gcf,filename);
+    saveas(f,filename);
+    saveas(f,[filename, '.png']);
 end

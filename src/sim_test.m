@@ -1,5 +1,11 @@
 clearvars; clc; close all
 
+% save figs? 
+saveFigs = false;
+
+% path to saved figures
+figPath = ['..' filesep, 'figs', filesep];
+
 % fix random seed
 rng(0)
 
@@ -144,20 +150,25 @@ fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
 
 %% LKF plots
 % Plot NIS and NEES Statistics
-figure
+f = figure();
 subplot(2,1,1);
 plot(time(2:end),exb_lkf,'or',time,ones(2,numel(time)).*rx,'--r')
 ylabel('NEES')
 subplot(2,1,2);
 plot(time(2:end),eyb_lkf,'or',time,ones(2,numel(time)).*ry,'--r')
 ylabel('NIS')
+if saveFigs
+    saveas(f,[figPath, 'lkf_nees']);
+    saveas(f,[figPath, 'lkf_nees.png']);
+end
+
 
 % Plot options for states
 state_opts = struct;
 state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
 state_opts.title = 'Simulated System States';
-state_opts.saveFigs = false;
-state_opts.filename = '';
+state_opts.saveFigs = saveFigs;
+state_opts.filename = [figPath, 'lkf_simulated_system_states'];
 state_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
 
 % Plot states
@@ -166,6 +177,7 @@ make_plots(state_opts,time,X,Xh_lkf)
 % Plot states and error covariance
 state_opts.title = 'Simulated System State Errors and 2-Sigma Bounds';
 state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
+state_opts.filename = [figPath, 'lkf_simulated_system_errors'];
 make_plots(state_opts,time,X-Xh_lkf,2*Sx_lkf,-2*Sx_lkf)
 
 
@@ -173,28 +185,32 @@ make_plots(state_opts,time,X-Xh_lkf,2*Sx_lkf,-2*Sx_lkf)
 meas_opts = struct;
 meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 meas_opts.title = 'Simulated System Measurements';
-meas_opts.saveFigs = false;
-meas_opts.filename = '';
+meas_opts.saveFigs = saveFigs;
+meas_opts.filename = [figPath, 'lkf_simulated_system_measurements'];
 meas_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
 
 % Plot Measurements
 make_plots(meas_opts,time,Y,Yh_lkf)
 %% EKF plots
 % Plot NIS and NEES Statistics
-figure
+f = figure();
 subplot(2,1,1);
 plot(time(2:end),exb_ekf,'or',time,ones(2,numel(time)).*rx,'--r')
 ylabel('NEES')
 subplot(2,1,2);
 plot(time(2:end),eyb_ekf,'or',time,ones(2,numel(time)).*ry,'--r')
 ylabel('NIS')
+if saveFigs
+    saveas(f,[figPath, 'ekf_nees']);
+    saveas(f,[figPath, 'ekf_nees.png']);
+end
 
 % Plot options for states
 state_opts = struct;
 state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
 state_opts.title = 'Simulated System States';
-state_opts.saveFigs = false;
-state_opts.filename = '';
+state_opts.saveFigs = saveFigs;
+state_opts.filename = [figPath, 'ekf_simulated_system_states'];
 state_opts.legends = {'Truth Sim','Extended Kalman Filter'};
 
 % Plot states
@@ -203,6 +219,7 @@ make_plots(state_opts,time,X,Xh_ekf)
 % Plot states and error covariance
 state_opts.title = 'Simulated System State Errors and 2-Sigma Bounds';
 state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
+state_opts.filename = [figPath, 'ekf_simulated_system_errors'];
 make_plots(state_opts,time,X-Xh_ekf,2*Sx_ekf,-2*Sx_ekf)
 
 
@@ -210,8 +227,8 @@ make_plots(state_opts,time,X-Xh_ekf,2*Sx_ekf,-2*Sx_ekf)
 meas_opts = struct;
 meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
 meas_opts.title = 'Simulated System Measurements';
-meas_opts.saveFigs = false;
-meas_opts.filename = '';
+meas_opts.saveFigs = saveFigs;
+meas_opts.filename = [figPath, 'ekf_simulated_system_measurements'];
 meas_opts.legends = {'Truth Sim','Extended Kalman Filter'};
 
 % Plot Measurements
@@ -279,13 +296,13 @@ P0 = diag([50,10,50,10,45,5]);
 % Unscented Kalman Filter
 [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,0.1*P0,Fnl,Hnl,H,Om,Q,R);
 
-%% LKF Plots
+%% State Plots
 % Plot options for states
 state_opts = struct;
 state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
 state_opts.title = 'Simulated System States';
-state_opts.saveFigs = false;
-state_opts.filename = '';
+state_opts.saveFigs = saveFigs;
+state_opts.filename = [figPath, 'provided_data_states'];
 state_opts.legends = {'LKF','EKF','UKF'};
 
 % Plot states
@@ -293,6 +310,7 @@ make_plots(state_opts,time,Xh_lkf,Xh_ekf,Xh_ukf)
 
 % Plot options for 2-sigma
 state_opts.title = '2-Sigma Bounds for Simulated System States';
+state_opts.filename = [figPath, 'provided_data_2sig'];
 
 % Plot 2-sigma
 make_plots(state_opts,time,2*Sx_lkf,2*Sx_ekf,2*Sx_ukf)
