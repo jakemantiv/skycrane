@@ -18,11 +18,11 @@ Fdz = @(X) (1/2)*Cd*rho*(As*cos(X(5) - al(X)) + Ab*sin(X(5) - al(X)))*X(4)*sqrt(
 
 % Non-Linear functions 
 dx =  @(X,U,W) X(2);
-dx2 = @(X,U,W) (U(1)*(cos(B)*sin(X(5)) + sin(B)*cos(X(5))) + U(2)*(cos(B)*sin(X(5)) - sin(B)*cos(X(5))) - Fdx(X))/(mb + mf) + W(1);
+dx2 = @(X,U,W) (U(1)*(cos(Be)*sin(X(5)) + sin(Be)*cos(X(5))) + U(2)*(cos(Be)*sin(X(5)) - sin(Be)*cos(X(5))) - Fdx(X))/(mb + mf) + W(1);
 dz =  @(X,U,W) X(4);
-dz2 = @(X,U,W) (U(1)*(cos(B)*cos(X(5)) - sin(B)*sin(X(5))) + U(2)*(cos(B)*cos(X(5)) + sin(B)*sin(X(5))) - Fdz(X))/(mb + mf) - g + W(2);
+dz2 = @(X,U,W) (U(1)*(cos(Be)*cos(X(5)) - sin(Be)*sin(X(5))) + U(2)*(cos(Be)*cos(X(5)) + sin(Be)*sin(X(5))) - Fdz(X))/(mb + mf) - g + W(2);
 da =  @(X,U,W) X(6);
-da2 = @(X,U,W) (1/In)*((U(1) - U(2))*cos(B)*wc + (U(2) - U(1))*sin(B)*hc) + W(3);
+da2 = @(X,U,W) (1/In)*((U(1) - U(2))*cos(Be)*wc + (U(2) - U(1))*sin(Be)*hc) + W(3);
 
 F =  @(X,U,W) [ dx(X,U,W)
                 dx2(X,U,W)

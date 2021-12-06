@@ -11,7 +11,7 @@ control = true;
 Tsim = 120;
 dT = 0.1;
 Nsim = 1;
-qW = .0009;
+qW = .1;
 
 % Simulation time
 time = 0:dT:Tsim;
@@ -25,6 +25,12 @@ data = load(['..',filesep,'lib', filesep, 'skycrane_finalproj_KFdata.mat']);
 Qt = data.Qtrue;
 Rt = data.Rtrue;
 
+% Get non-linear functions
+[Fnl,Hnl] = skycraneNL;
+
+% Get linearized functions
+[A,B,C,D,Gam,F,G,H,M,Om] = skycraneLin;
+
 % Nominal conditions
 x_nom  = 0;
 z_nom  = 20;
@@ -32,59 +38,54 @@ a_nom  = 0;
 dx_nom = 0;
 dz_nom = 0;
 da_nom = 0;
-T1_nom = 0.5*g*(mb + mf)/cos(B);
+T1_nom = 0.5*g*(mb + mf)/cos(Be);
 T2_nom = T1_nom;
 
 % Nominal Points
-X_nom = [x_nom, dx_nom, z_nom, dz_nom, a_nom, da_nom]';
-U_nom = [T1_nom, T2_nom]';
+n = 6; p = 4; m = 2;
+Xnom = [x_nom, dx_nom, z_nom, dz_nom, a_nom, da_nom]';
+Unom = [T1_nom, T2_nom]';
+Ynom = Hnl(Xnom,Unom,zeros(p,1));
 
-% Get non-linear functions
-[Fnl,Hnl] = skycraneNL;
-Y_nom = Hnl(X_nom,U_nom,zeros(4,1));
+% Nominal Trajectory Functions
+Xnom = @(t) Xnom;
+Unom = @(t) Unom;
+Ynom = @(t) Ynom;
 
-% Get linearized functions
-[A,~,~,~,F,G,H,M,L] = skycraneLin(dT,X_nom,U_nom);
-[p,n] = size(H);
+% Initial Condition Variance
+X_var = .01*[2,.5,2,.5,deg2rad(1),deg2rad(.05)]';
 
 % Initialize Filter
-P0 = 1E4*eye(6);
-W = qW*diag([1,1,1]);
-Z = dT*[-A, L*W*L'; zeros(n), A'];
-eZ = expm(Z);
-Q = F*eZ(1:n,n+1:end);
-R = Rt;
-X_var = [2,.5,2,.5,deg2rad(1),deg2rad(.05)]';
+P0 = 1E4*eye(n);
+Q = @(dT,t) qW*diag([5,5,1]);
+R = @(dt,t) Rt;
 
 % MonteCarlo Simulation Runs
 ex_lkf = zeros(Nsim,N-1);
 ey_lkf = zeros(Nsim,N-1);
+ex_ekf = zeros(Nsim,N-1);
+ey_ekf = zeros(Nsim,N-1);
 for i = 1:Nsim
     % Initial condition
     delX0 = randn(n,1).*X_var;
-    X0 = delX0 + X_nom;
+    X0 = delX0 + Xnom(0);
     
     % Truth model Simulation
-    [X,Y,U] = truthModel(time,Fnl,Hnl,X0,X_nom,U_nom,control);
+    [X,Y,U] = truthModel(time,Fnl,Hnl,X0,Xnom,Unom,control);
     
     % Linearized Kalman Filter Estimate
-    dY = Y - Y_nom;
-    dU = U - U_nom;
-    dX0 = zeros(n,1);
-    [dXh,dYh,P_lkf,S_lkf,Sx_lkf] = KF(time,dY,dU,dX0,P0,F,G,H,M,Q,R);
-    Xh_lkf = dXh + X_nom;
-    Yh_lkf = dYh + Y_nom;
+    [Xh_lkf,Yh_lkf,P_lkf,S_lkf,Sx_lkf] = KF(time,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R);
     
     % Extended Kalman Filter
-    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,dX0,P0,Fnl,F,G,Hnl,H,M,Q,R);
+%     [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Fnl,F,G,Hnl,H,M,Q,R);
 
-    % Calculate NEES and NIS at each time step
+    % Calculate NEES and NIS
     ex_lkf(i,:) = NEES(X,Xh_lkf,P_lkf);
     ey_lkf(i,:) = NIS(Y,Yh_lkf,S_lkf);
+%     ex_ekf(i,:) = NEES(X,Xh_ekf,P_ekf);
+%     ey_ekf(i,:) = NIS(Y,Yh_ekf,S_ekf);
     
-    ex_ekf(i,:) = NEES(X,Xh_ekf,P_ekf);
-    ey_ekf(i,:) = NIS(Y,Yh_ekf,S_ekf);
-    
+    % Progress Notification
     fprintf('Done with %d\n',i)
 end
 

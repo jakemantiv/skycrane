@@ -4,7 +4,7 @@ function skycrane_params
 % System Parameters
 rho = 0.020;            % Mars surface atmosphere density           [kg/m3]
 g = 3.711;              % Mars surface gravitational constant       [m/s2]
-B = pi/4;               % Thruster mounting angle                   [rad]
+Be = pi/4;              % Thruster mounting angle                   [rad]
 Cd = 0.2;               % Drag Coefficient                          [-]
 
 mf = 390;               % Propellant Mass                           [kg]

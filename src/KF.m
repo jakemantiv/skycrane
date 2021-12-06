@@ -1,40 +1,75 @@
-% Kalman Filter Code
+% Linearized Kalman Filter Code
+function [Xh,Yh,P,S,Sx] = KF(t,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R)
+% Size components for preallocations
+p = size(Y,1);
+n = size(X0,1);
+N = numel(t);
+I = eye(n);
 
-function [Xh,Yh,P,S,Sx] = KF(t,Y,U,X0,P0,F,G,H,M,Q,R)
-[p,n] = size(H);
+% Control perturbation
+dU = U - Unom(t);
 
-% Remove control feedthrough inputs from measurements
-Y = Y - M*U;
+% Measurement Perturbation
+dY = Y - Ynom(t);
 
 % Initialize Filter
-Xp = X0;
+dXp = X0 - Xnom(0);
 Pp = P0;
 
 % Initialize Output Vectors
-Xh = X0.*ones(size(X0,1),numel(t));
-Yh = NaN(size(Y));
-P = P0.*ones(size(X0,1),size(X0,1),numel(t));
-S = NaN(size(Y,1),size(Y,1),numel(t));
-Sx = sqrt(diag(P0)).*ones(size(X0,1),numel(t));
+dXh = dXp.*ones(n,N);
+dYh = NaN(p,N);
+P = Pp.*ones(n,n,N);
+S = NaN(p,p,N);
+Sx = sqrt(diag(Pp)).*ones(n,N);
+
 % Loop through time input
-for k = 1:numel(t)-1
+for k = 1:N-1
+    % Time values
+    tk = t(k);
+    tp = t(k+1);
+    dT = tp - tk;
+    
+    % -------- Time Update Section --------
+    
+    % Matrices for time update
+    Fk = F(dT, tk, Xnom(tk), Unom(tk));
+    Gk = G(dT, tk, Xnom(tk), Unom(tk));
+    Omk = Om(dT, tk, Xnom(tk), Unom(tk));
+    Qk = Q(dT, tk);
+    
+    % Control at time = tk
+    dUk = dU(:,k);
+    
     % Perform Time Update
-    Xm = F*Xp + G*U(:,k);
-    Pm = F*Pp*F' + Q;
+    dXm = Fk*dXp + Gk*dUk;
+    Pm = Fk*Pp*Fk' + Omk*Qk*Omk';
+    
+    
+    % -------- Measurement Update Section --------
+    
+    % Matrices for measurement update
+    Hk = H(dT, tp, Xnom(tp), Unom(tp));
+    Mk = M(dT, tp, Xnom(tp), Unom(tp));
+    Rk = R(dT, tp);
+    
+    % Measurement perturbation at time = tk+1
+    dYk = dY(:,k+1);
     
     % Perform Measurement Update
-    K = Pm*H'*inv(H*Pm*H' + R);
-    Xp = Xm + K*(Y(:,k+1) - H*Xm);
-    Pp = (eye(n) - K*H)*Pm;
+    Kk = Pm*Hk'*inv(Hk*Pm*Hk' + Rk);
+    dXp = dXm + Kk*(dYk - Hk*dXm - Mk*dUk);
+    Pp = (I - Kk*Hk)*Pm;
     
     % Update output Vectors
-    Xh(:,k+1) = Xp;
+    dXh(:,k+1) = dXp;
+    dYh(:,k+1) = Hk*dXm + Mk*dUk;
     P(:,:,k+1) = Pp;
-    S(:,:,k+1) = H*Pm*H' + R;
+    S(:,:,k+1) = Hk*Pm*Hk' + Rk;
     Sx(:,k+1) = sqrt(diag(Pp));
-    
-    % Measurement
-    Yh(:,k+1) = H*Xm + M*U(:,k+1);
 end
 
+% Evaluate actual state for output
+Xh = Xnom(t) + dXh;
+Yh = Ynom(t) + dYh;
 end
