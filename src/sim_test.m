@@ -10,8 +10,8 @@ dataFileName = 'mcTestData';
 control = true;
 Tsim = 120;
 dT = 0.1;
-Nsim = 1;
-qW = .1;
+Nsim = 50;
+qW = .01;
 
 % Simulation time
 time = 0:dT:Tsim;
@@ -77,13 +77,13 @@ for i = 1:Nsim
     [Xh_lkf,Yh_lkf,P_lkf,S_lkf,Sx_lkf] = KF(time,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R);
     
     % Extended Kalman Filter
-%     [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Fnl,F,G,Hnl,H,M,Q,R);
+    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,Hnl,H,Om,Q,R);
 
     % Calculate NEES and NIS
     ex_lkf(i,:) = NEES(X,Xh_lkf,P_lkf);
     ey_lkf(i,:) = NIS(Y,Yh_lkf,S_lkf);
-%     ex_ekf(i,:) = NEES(X,Xh_ekf,P_ekf);
-%     ey_ekf(i,:) = NIS(Y,Yh_ekf,S_ekf);
+    ex_ekf(i,:) = NEES(X,Xh_ekf,P_ekf);
+    ey_ekf(i,:) = NIS(Y,Yh_ekf,S_ekf);
     
     % Progress Notification
     fprintf('Done with %d\n',i)
