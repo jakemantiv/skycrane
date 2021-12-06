@@ -29,10 +29,11 @@ for k = 1:numel(t)-1
     Qk = Q(dT, tk);
     
     %Xm = Fnl(Xp,U(:,k),[0;0;0]);
-    Xm = Xp + 0.1*Fnl(Xp,U(:,k),[0;0;0]); % euler integration 
+    Xm = Xp + dT*Fnl(Xp,U(:,k),[0;0;0]); % euler integration 
     
     % debug code, ode45 for more exact solution, too slow
-    %sol = ode45(@(~,X) Fnl(X,U(:,k),[0; 0; 0]), [0,0.1], Xp)
+%     sol = ode45(@(~,X) Fnl(X,U(:,k),[0; 0; 0]), [0,dT], Xp);
+%     Xm = sol.y(:,end);
     
     Pm = Fk*Pp*Fk' + Omk*Qk*Omk';
     
