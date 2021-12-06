@@ -24,8 +24,8 @@ for k = 1:numel(t)-1
     % -------- Time Update Section --------
     
     % Matrices for time update
-    Fk = Flin(dT, tk, Xnom(tk), Unom(tk));
-    Omk = Om(dT, tk, Xnom(tk), Unom(tk));
+    Fk = Flin(dT, tk, Xp, Unom(tk));
+    Omk = Om(dT, tk, Xp, Unom(tk));
     Qk = Q(dT, tk);
     
     %Xm = Fnl(Xp,U(:,k),[0;0;0]);
@@ -41,7 +41,7 @@ for k = 1:numel(t)-1
     % -------- Measurement Update Section --------
     
     % Matrices for measurement update
-    Hk = Hlin(dT, tp, Xnom(tp), Unom(tp));
+    Hk = Hlin(dT, tp, Xm, Unom(tp));
     Rk = R(dT, tp);
     
     % Perform Measurement Update
