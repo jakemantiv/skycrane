@@ -57,7 +57,7 @@ X_var = .01*[2,.5,2,.5,deg2rad(1),deg2rad(.05)]';
 
 % Initialize Filter
 P0 = 1E4*eye(n);
-Q = @(dT,t) qW*diag([5,5,1]);
+Q = @(dT,t) qW*diag([1,1,1]);
 R = @(dt,t) Rt;
 
 % MonteCarlo Simulation Runs
@@ -97,6 +97,32 @@ exb_ekf = mean(ex_ekf,1);
 eyb_ekf = mean(ey_ekf,1);
 rx = [chi2inv(alpha/2,Nsim*n), chi2inv(1 - alpha/2,Nsim*n)]'/Nsim;
 ry = [chi2inv(alpha/2,Nsim*p), chi2inv(1 - alpha/2,Nsim*p)]'/Nsim;
+
+
+% print some outputs of NEES/NIS tests to screen
+% ratio of samples that were within ry bounds, should equal 1-alpha
+nis_succss_ekf = sum(exb_ekf<rx(2) & exb_ekf>rx(1))./numel(exb_ekf);
+nis_succss_lkf = sum(exb_lkf<rx(2) & exb_lkf>rx(1))./numel(exb_lkf);
+
+% ratio of samples that were within ry bounds, should equal 1-alpha
+nees_succss_ekf = sum(eyb_ekf<ry(2) & eyb_ekf>ry(1))./numel(eyb_ekf);
+nees_succss_lkf = sum(eyb_lkf<ry(2) & eyb_lkf>ry(1))./numel(eyb_lkf);
+
+fprintf('LKF NIS Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nis_succss_lkf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
+
+fprintf('LKF NEES Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nees_succss_lkf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
+
+fprintf('EKF NEES Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nis_succss_ekf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
+
+fprintf('EKF NEES Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nees_succss_ekf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
 
 %% LKF plots
 % Plot NIS and NEES Statistics
