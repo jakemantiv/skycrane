@@ -42,7 +42,7 @@ for k = 1:N-1
     sol = ode45(@(~,X) F(X,U(:,k),w), [0,dT], X(:,k));
     X(:,k+1) = sol.y(:,end);
 end
-U(:,k+1) = Ucl(t(k+1),X(:,k+1),U(:,k+1));
+U(:,k+1) = Ucl(t(k+1),X(:,k+1),Unom(t(k+1)));
 
 % Measurement Noise Sample
 v = awgn_draw(zeros(p,N-1),R);
