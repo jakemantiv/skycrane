@@ -1,7 +1,7 @@
 clearvars; clc; close all
 
 % save figs? 
-saveFigs = false;
+saveFigs = true;
 
 % path to saved figures
 figPath = ['..' filesep, 'figs', filesep];
@@ -150,126 +150,109 @@ fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
 
 %% LKF plots
 % Plot NIS and NEES Statistics
-f = figure();
-subplot(2,1,1);
-plot(time(2:end),exb_lkf,'or',time,ones(2,numel(time)).*rx,'--r')
-ylabel('NEES')
-subplot(2,1,2);
-plot(time(2:end),eyb_lkf,'or',time,ones(2,numel(time)).*ry,'--r')
-ylabel('NIS')
-if saveFigs
-    saveas(f,[figPath, 'lkf_nees']);
-    saveas(f,[figPath, 'lkf_nees.png']);
-end
+one = ones(1,numel(time)-1);
+stats_opts = struct;
+stats_opts.symbols = {'NEES','NIS'};
+stats_opts.title = 'NEES and NIS Test Statistics for LKF Filter';
+stats_opts.saveFigs = saveFigs;
+stats_opts.filename = [figPath, 'lkf_nees'];
+stats_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
+stats_opts.limfrac = 0.9;
+stats_opts.linespecs = {'or','--r','--r';'or','--r','--r'};
+make_plots(stats_opts,time(2:end),[exb_lkf;eyb_lkf],[one.*rx(1);one.*ry(1)],[one.*rx(2);one.*ry(2)]);
 
 
 % Plot options for states
 state_opts = struct;
 state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
-state_opts.title = 'Simulated System States';
+state_opts.title = 'LKF Simulated System States';
 state_opts.saveFigs = saveFigs;
 state_opts.filename = [figPath, 'lkf_simulated_system_states'];
 state_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
+state_opts.limfrac = 0.9;
+state_opts.linespecs = repmat({'-','-'},6,1);
 
 % Plot states
 make_plots(state_opts,time,X,Xh_lkf)
 
 % Plot states and error covariance
-state_opts.title = 'Simulated System State Errors and 2-Sigma Bounds';
+state_opts.title = 'LKF Simulated System State Errors and 2-Sigma Bounds';
 state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
 state_opts.filename = [figPath, 'lkf_simulated_system_errors'];
+state_opts.linespecs = repmat({'-','--k','--k'},6,1);
 make_plots(state_opts,time,X-Xh_lkf,2*Sx_lkf,-2*Sx_lkf)
 
 
 % Plot options for measurements
 meas_opts = struct;
 meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
-meas_opts.title = 'Simulated System Measurements';
+meas_opts.title = 'LKF Simulated System Measurements';
 meas_opts.saveFigs = saveFigs;
 meas_opts.filename = [figPath, 'lkf_simulated_system_measurements'];
 meas_opts.legends = {'Truth Sim','Linearized Kalman Filter'};
+meas_opts.limfrac = 0.9;
+meas_opts.linespecs = repmat({'-','-'},4,1);
 
 % Plot Measurements
 make_plots(meas_opts,time,Y,Yh_lkf)
 %% EKF plots
 % Plot NIS and NEES Statistics
-f = figure();
-subplot(2,1,1);
-plot(time(2:end),exb_ekf,'or',time,ones(2,numel(time)).*rx,'--r')
-ylabel('NEES')
-subplot(2,1,2);
-plot(time(2:end),eyb_ekf,'or',time,ones(2,numel(time)).*ry,'--r')
-ylabel('NIS')
-if saveFigs
-    saveas(f,[figPath, 'ekf_nees']);
-    saveas(f,[figPath, 'ekf_nees.png']);
-end
+stats_opts.title = 'NEES and NIS Test Statistics for EKF Filter';
+stats_opts.filename = [figPath, 'ekf_nees'];
+stats_opts.legends = {'Truth Sim','Extended Kalman Filter'};
+make_plots(stats_opts,time(2:end),[exb_ekf;eyb_ekf],[one.*rx(1);one.*ry(1)],[one.*rx(2);one.*ry(2)]);
+
 
 % Plot options for states
-state_opts = struct;
-state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
-state_opts.title = 'Simulated System States';
-state_opts.saveFigs = saveFigs;
+state_opts.title = 'EKF Simulated System States';
 state_opts.filename = [figPath, 'ekf_simulated_system_states'];
 state_opts.legends = {'Truth Sim','Extended Kalman Filter'};
-
-% Plot states
+state_opts.linespecs = repmat({'-','-'},6,1);
 make_plots(state_opts,time,X,Xh_ekf)
 
+
 % Plot states and error covariance
-state_opts.title = 'Simulated System State Errors and 2-Sigma Bounds';
+state_opts.title = 'EKF Simulated System State Errors and 2-Sigma Bounds';
 state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
 state_opts.filename = [figPath, 'ekf_simulated_system_errors'];
+state_opts.linespecs = repmat({'-','--k','--k'},6,1);
 make_plots(state_opts,time,X-Xh_ekf,2*Sx_ekf,-2*Sx_ekf)
 
 
 % Plot options for states
-meas_opts = struct;
-meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
-meas_opts.title = 'Simulated System Measurements';
-meas_opts.saveFigs = saveFigs;
+meas_opts.title = 'EKF Simulated System Measurements';
 meas_opts.filename = [figPath, 'ekf_simulated_system_measurements'];
 meas_opts.legends = {'Truth Sim','Extended Kalman Filter'};
-
-% Plot Measurements
 make_plots(meas_opts,time,Y,Yh_ekf)
 
 %% UKF plots
 % Plot NIS and NEES Statistics
-figure
-subplot(2,1,1);
-plot(time(2:end),exb_ukf,'or',time,ones(2,numel(time)).*rx,'--r')
-ylabel('NEES')
-subplot(2,1,2);
-plot(time(2:end),eyb_ukf,'or',time,ones(2,numel(time)).*ry,'--r')
-ylabel('NIS')
+stats_opts.title = 'NEES and NIS Test Statistics for UKF Filter';
+stats_opts.filename = [figPath, 'ukf_nees'];
+stats_opts.legends = {'Truth Sim','Unscented Kalman Filter'};
+make_plots(stats_opts,time(2:end),[exb_ukf;eyb_ukf],[one.*rx(1);one.*ry(1)],[one.*rx(2);one.*ry(2)]);
+
 
 % Plot options for states
-state_opts = struct;
-state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
 state_opts.title = 'UKF Simulated System States';
-state_opts.saveFigs = false;
-state_opts.filename = '';
-state_opts.legends = {'Truth Sim','Extended Kalman Filter'};
-
-% Plot states
+state_opts.filename = [figPath, 'ukf_simulated_system_states'];
+state_opts.legends = {'Truth Sim','Unscented Kalman Filter'};
+state_opts.linespecs = repmat({'-','-'},6,1);
 make_plots(state_opts,time,X,Xh_ukf)
+
 
 % Plot states and error covariance
 state_opts.title = 'UKF Simulated System State Errors and 2-Sigma Bounds';
 state_opts.legends = {'Truth Sim','+2 sigma','-2 sigma'};
+state_opts.filename = [figPath, 'ukf_simulated_system_errors'];
+state_opts.linespecs = repmat({'-','--k','--k'},6,1);
 make_plots(state_opts,time,X-Xh_ukf,2*Sx_ukf,-2*Sx_ukf)
 
 
-% Plot options for states
-meas_opts = struct;
-meas_opts.symbols = {'$\xi$','$z$','$\dot{\theta}$','$\ddot{\xi}$'};
+% Plot options for Measurements
 meas_opts.title = 'UKF Simulated System Measurements';
-meas_opts.saveFigs = false;
-meas_opts.filename = '';
-meas_opts.legends = {'Truth Sim','Extended Kalman Filter'};
-
-% Plot Measurements
+meas_opts.filename = [figPath, 'ukf_simulated_system_measurements'];
+meas_opts.legends = {'Truth Sim','Unscented Kalman Filter'};
 make_plots(meas_opts,time,Y,Yh_ukf)
 
 
@@ -298,19 +281,16 @@ P0 = diag([50,10,50,10,45,5]);
 
 %% State Plots
 % Plot options for states
-state_opts = struct;
-state_opts.symbols = {'$\xi$','$\dot{\xi}$','$z$','$\dot{z}$','$\theta$','$\dot{\theta}$'};
-state_opts.title = 'Simulated System States';
-state_opts.saveFigs = saveFigs;
+state_opts.title = 'Simulated System States for Provided Data';
 state_opts.filename = [figPath, 'provided_data_states'];
 state_opts.legends = {'LKF','EKF','UKF'};
-
-% Plot states
+state_opts.linespecs = repmat({'-','-','-'},6,1);
+state_opts.limfrac = 0.95;
 make_plots(state_opts,time,Xh_lkf,Xh_ekf,Xh_ukf)
+
 
 % Plot options for 2-sigma
 state_opts.title = '2-Sigma Bounds for Simulated System States';
 state_opts.filename = [figPath, 'provided_data_2sig'];
-
-% Plot 2-sigma
+state_opts.limfrac = 0.95;
 make_plots(state_opts,time,2*Sx_lkf,2*Sx_ekf,2*Sx_ukf)
