@@ -1,7 +1,7 @@
 clearvars; clc; close all
 
 % save figs? 
-saveFigs = true;
+saveFigs = false;
 
 % path to saved figures
 figPath = ['..' filesep, 'figs', filesep];
@@ -88,7 +88,7 @@ for i = 1:Nsim
     [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,Hnl,H,Om,Q,R);
     
     % Unscented Kalman Filter
-    [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,0.1*P0,Fnl,Hnl,H,Om,Q,R);
+    [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,P0,Fnl,Hnl,H,Om,Q,R);
 
     % Calculate NEES and NIS
     ex_lkf(i,:) = NEES(X,Xh_lkf,P_lkf);
@@ -279,6 +279,30 @@ P0 = diag([50,10,50,10,45,5]);
 % Unscented Kalman Filter
 [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,0.1*P0,Fnl,Hnl,H,Om,Q,R);
 
+% Calculate NIS
+ey_ukf_data = zeros(1,length(Y)-1);
+ey_ukf_data = zeros(1,length(Y)-1);
+ey_ukf_data = zeros(1,length(Y)-1);
+ey_lkf_data(i,:) = NIS(Y,Yh_lkf,S_lkf);
+ey_ekf_data(i,:) = NIS(Y,Yh_ekf,S_ekf);
+ey_ukf_data(i,:) = NIS(Y,Yh_ukf,S_ukf);
+ry_data = [chi2inv(alpha/2,1*p), chi2inv(1 - alpha/2,1*p)]'/1;
+
+nis_succss_data_ekf = sum(exb_ekf<rx(2) & exb_ekf>rx(1))./numel(exb_ekf);
+nis_succss_data_lkf = sum(exb_lkf<rx(2) & exb_lkf>rx(1))./numel(exb_lkf);
+nis_succss_data_ukf = sum(exb_ukf<rx(2) & exb_ukf>rx(1))./numel(exb_ukf);
+
+fprintf('\n\n\n Given Data Results:\nLKF NIS Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nis_succss_data_lkf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
+
+fprintf('EKF NIS Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nis_succss_data_ekf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
+
+fprintf('UKF NIS Test:\n');
+fprintf('Observed ratio between bounds: %f\n', nis_succss_data_ukf);
+fprintf('Expected ratio between bounds: %f\n\n', 1-alpha);
 %% State Plots
 % Plot options for states
 state_opts.title = 'Simulated System States for Provided Data';
@@ -294,3 +318,16 @@ state_opts.title = '2-Sigma Bounds for Simulated System States';
 state_opts.filename = [figPath, 'provided_data_2sig'];
 state_opts.limfrac = 0.95;
 make_plots(state_opts,time,2*Sx_lkf,2*Sx_ekf,2*Sx_ukf)
+
+% NIS test
+% Plot NIS and NEES Statistics
+one = ones(1,numel(time)-1);
+stats_opts = struct;
+stats_opts.symbols = {'NIS - LKF', 'NIS - EKF','NIS - UKF'};
+stats_opts.title = 'NIS Test Statistics for Given Data';
+stats_opts.saveFigs = saveFigs;
+stats_opts.filename = [figPath, 'given_data_nis'];
+stats_opts.legends = {'Sample','Bounds'};
+stats_opts.limfrac = 0.9;
+stats_opts.linespecs = {'or','--r','--r';'or','--r','--r';'or','--r','--r'};
+make_plots(stats_opts,time(2:end),[ey_lkf_data;ey_ekf_data;ey_ukf_data],[one.*ry_data(1);one.*ry_data(1);one.*ry_data(1)],[one.*ry_data(2);one.*ry_data(2);one.*ry_data(2)]);
