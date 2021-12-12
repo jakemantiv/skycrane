@@ -1,6 +1,6 @@
 % Kalman Filter Code
 
-function [Xh,Yh,P,S,Sx] = EKF(t,Y,U,X0,P0,Xnom,Unom,Fnl,Flin,Hnl,Hlin,Om,Q,R)
+function [Xh,Yh,P,S,Sx] = EKF(t,Y,U,X0,P0,Xnom,Unom,Fnl,Flin,Alin, Hnl,Hlin,Om,Q,R)
 n = size(X0,1);
 
 % Initialize Filter
@@ -24,7 +24,9 @@ for k = 1:numel(t)-1
     % -------- Time Update Section --------
     
     % Matrices for time update
-    Fk = Flin(dT, tk, Xp, U(:,k));
+%     Fk_old = Flin(dT, tk, Xp, U(:,k)); % original
+    Fk = eye(numel(Xp)) + dT*Alin(Xp, U(:,k)); % new
+
     Omk = Om(dT, tk, Xp, U(:,k));
     Qk = Q(dT, tk);
     

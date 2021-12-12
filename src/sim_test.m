@@ -16,7 +16,7 @@ dataFileName = 'mcTestData';
 control = true;
 Tsim = 120;
 dT = 0.1;
-Nsim = 1;
+Nsim = 100;
 qW = .011;
 
 % Simulation time
@@ -85,10 +85,10 @@ for i = 1:Nsim
     [Xh_lkf,Yh_lkf,P_lkf,S_lkf,Sx_lkf] = KF(time,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R);
     
     % Extended Kalman Filter
-    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,Hnl,H,Om,Q,R);
+    [Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,A,Hnl,H,Om,Q,R);
     
     % Unscented Kalman Filter
-    [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,P0,Fnl,Hnl,H,Om,Q,R);
+    [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,0.1.*P0,Fnl,Hnl,H,Om,Q,R);
 
     % Calculate NEES and NIS
     ex_lkf(i,:) = NEES(X,Xh_lkf,P_lkf);
@@ -274,18 +274,18 @@ P0 = diag([50,10,50,10,45,5]);
 [Xh_lkf,Yh_lkf,P_lkf,S_lkf,Sx_lkf] = KF(time,Y,U,X0,P0,Xnom,Unom,Ynom,F,G,H,M,Om,Q,R);
 
 % Extended Kalman Filter
-[Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,Hnl,H,Om,Q,R);
+[Xh_ekf,Yh_ekf,P_ekf,S_ekf,Sx_ekf] = EKF(time,Y,U,X0,P0,Xnom,Unom,Fnl,F,A,Hnl,H,Om,Q,R);
 
 % Unscented Kalman Filter
 [Xh_ukf,Yh_ukf,P_ukf,S_ukf,Sx_ukf] = UKF(time,Y,U,X0,0.1*P0,Fnl,Hnl,H,Om,Q,R);
 
 % Calculate NIS
 ey_ukf_data = zeros(1,length(Y)-1);
-ey_ukf_data = zeros(1,length(Y)-1);
-ey_ukf_data = zeros(1,length(Y)-1);
-ey_lkf_data(i,:) = NIS(Y,Yh_lkf,S_lkf);
-ey_ekf_data(i,:) = NIS(Y,Yh_ekf,S_ekf);
-ey_ukf_data(i,:) = NIS(Y,Yh_ukf,S_ukf);
+ey_lkf_data = zeros(1,length(Y)-1);
+ey_ekf_data = zeros(1,length(Y)-1);
+ey_lkf_data(1,:) = NIS(Y,Yh_lkf,S_lkf);
+ey_ekf_data(1,:) = NIS(Y,Yh_ekf,S_ekf);
+ey_ukf_data(1,:) = NIS(Y,Yh_ukf,S_ukf);
 ry_data = [chi2inv(alpha/2,1*p), chi2inv(1 - alpha/2,1*p)]'/1;
 
 nis_succss_data_ekf = sum(ey_ekf_data<ry_data(2) & ey_ekf_data>ry_data(1))./numel(ey_ekf_data);
