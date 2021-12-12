@@ -16,7 +16,7 @@ dataFileName = 'mcTestData';
 control = true;
 Tsim = 120;
 dT = 0.1;
-Nsim = 100;
+Nsim = 1;
 qW = .011;
 
 % Simulation time
@@ -288,9 +288,9 @@ ey_ekf_data(i,:) = NIS(Y,Yh_ekf,S_ekf);
 ey_ukf_data(i,:) = NIS(Y,Yh_ukf,S_ukf);
 ry_data = [chi2inv(alpha/2,1*p), chi2inv(1 - alpha/2,1*p)]'/1;
 
-nis_succss_data_ekf = sum(exb_ekf<rx(2) & exb_ekf>rx(1))./numel(exb_ekf);
-nis_succss_data_lkf = sum(exb_lkf<rx(2) & exb_lkf>rx(1))./numel(exb_lkf);
-nis_succss_data_ukf = sum(exb_ukf<rx(2) & exb_ukf>rx(1))./numel(exb_ukf);
+nis_succss_data_ekf = sum(ey_ekf_data<ry_data(2) & ey_ekf_data>ry_data(1))./numel(ey_ekf_data);
+nis_succss_data_lkf = sum(ey_lkf_data<ry_data(2) & ey_lkf_data>ry_data(1))./numel(ey_lkf_data);
+nis_succss_data_ukf = sum(ey_ukf_data<ry_data(2) & ey_ukf_data>ry_data(1))./numel(ey_ukf_data);
 
 fprintf('\n\n\n Given Data Results:\nLKF NIS Test:\n');
 fprintf('Observed ratio between bounds: %f\n', nis_succss_data_lkf);
